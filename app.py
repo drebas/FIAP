@@ -1,3 +1,55 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import joblib
+
+# Configuração da página
+st.set_page_config(
+    page_title="Obesidade | FIAP TC4",
+    page_icon="🏥",
+    layout="wide",
+)
+
+# Carregar modelo e artefatos
+@st.cache_resource
+def load_artifacts():
+    model          = joblib.load("model.pkl")
+    feature_cols   = joblib.load("feature_columns.pkl")
+    target_decoder = joblib.load("target_decoder.pkl")
+    return model, feature_cols, target_decoder
+
+model, FEATURE_COLS, TARGET_DECODER = load_artifacts()
+
+# Navegação entre páginas
+pagina = st.sidebar.selectbox("Navegação", ["🔍 Predição", "📊 Dashboard Analítico"])
+
+if pagina == "🔍 Predição":
+    st.title("🏥 Preditor de Nível de Obesidade")
+    st.markdown("Preencha os dados do paciente para obter a predição do modelo.")
+
+    st.divider()
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        gender         = st.selectbox("Gênero", ["Female", "Male"])
+        age            = st.number_input("Idade (anos)", min_value=14, max_value=80, value=25)
+        family_history = st.selectbox("Histórico familiar de sobrepeso?", ["yes", "no"])
+        favc           = st.selectbox("Come alimentos calóricos com frequência?", ["yes", "no"])
+        fcvc           = st.slider("Frequência de consumo de vegetais (1=raramente, 3=sempre)", 1, 3, 2)
+        ncp            = st.slider("Número de refeições principais por dia", 1, 4, 3)
+        caec           = st.selectbox("Come entre as refeições?", ["Sometimes", "no", "Frequently", "Always"])
+
+    with col2:
+        smoke  = st.selectbox("Fuma?", ["no", "yes"])
+        ch2o   = st.slider("Consumo de água diário (1=<1L, 2=1-2L, 3=>2L)", 1, 3, 2)
+        scc    = st.selectbox("Monitora as calorias ingeridas?", ["no", "yes"])
+        faf    = st.slider("Frequência de atividade física/semana (0=nenhuma, 3=intensa)", 0, 3, 1)
+        tue    = st.slider("Tempo com eletrônicos/dia (0=<2h, 1=3-5h, 2=>5h)", 0, 2, 1)
+        calc   = st.selectbox("Consome álcool?", ["Sometimes", "no", "Frequently", "Always"])
+        mtrans = st.selectbox("Meio de transporte habitual",
+                              ["Public_Transportation", "Automobile", "Walking", "Motorbike", "Bike"])
+
 if pagina == "🔍 Predição":
     st.title("🏥 Preditor de Nível de Obesidade")
     st.markdown("Preencha os dados do paciente para obter a predição do modelo.")
